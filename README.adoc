@@ -1,0 +1,4 @@
+= Generate Mapping of Anchors
+
+Crawls URLs and generates a mapping of anchors to the corresponding page.
+This project is not really intended for general usage but others can modify/use for their own usage.
