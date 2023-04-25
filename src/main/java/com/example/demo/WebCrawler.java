@@ -23,6 +23,7 @@ public class WebCrawler {
 		Set<String> visitedUrls = new HashSet<>();
 		Stack<String> urlsToVisit = new Stack<>();
 		urlsToVisit.add(startUrl);
+		String normalizedStartUrl = normalizedUrl(startUrl);
 		try (final WebClient webClient = new WebClient() ) {
 			webClient.getOptions().setJavaScriptEnabled(false);
 			webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
@@ -38,7 +39,7 @@ public class WebCrawler {
 					String href = anchor.getHrefAttribute();
 					try {
 						String normlizedUrl = normalizedUrl(absoluteUrl(page.getUrl().toString(), href));
-						if (!visitedUrls.contains(normlizedUrl) && !urlsToVisit.contains(normlizedUrl) && normlizedUrl.startsWith(startUrl) && !normlizedUrl.matches(".*?/\\d.*")) {
+						if (!visitedUrls.contains(normlizedUrl) && !urlsToVisit.contains(normlizedUrl) && normlizedUrl.startsWith(normalizedStartUrl) && !normlizedUrl.matches(".*?/\\d.*")) {
 							urlsToVisit.add(normlizedUrl);
 						}
 					} catch (URISyntaxException e) {
