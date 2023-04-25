@@ -11,19 +11,19 @@ import java.util.Map;
 public class DemoApplication {
 
 	public static void main(String[] args) throws Exception {
-		Map<String, String> idToUrl = new HashMap<>();
-		IdParser idParser = new IdParser();
-		String startUrl = "https://docs.spring.io/spring-security/reference/";
+		Map<String, String> antoraIdToUrl = new HashMap<>();
+		IdParser antoraIdParser = IdParser.createForAntora();
+		String antoraStartUrl = "https://docs.spring.io/spring-security/reference/";
 		WebCrawler webCrawler = new WebCrawler();
-		webCrawler.crawl(startUrl, page -> {
+		webCrawler.crawl(antoraStartUrl, page -> {
 			String url = page.getUrl().toString();
 			System.out.println(url);
-			for (String id : idParser.ids(page)) {
-				idToUrl.put(id, url);
+			for (String id : antoraIdParser.ids(page)) {
+				antoraIdToUrl.put(id, url);
 			}
 		});
 		Gson gson = new Gson();
-		String json = gson.toJson(idToUrl);
+		String json = gson.toJson(antoraIdToUrl);
 		System.out.println(json);
 	}
 }
