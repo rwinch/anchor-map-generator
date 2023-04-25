@@ -15,7 +15,7 @@ public class DemoApplication {
 		Map<String, String> antoraIdToUrl = new HashMap<>();
 		Map<String, String> antoraOriginalIdToUrl = new HashMap<>();
 		IdParser antoraIdParser = IdParser.createForAntora();
-		String antoraStartUrl = "https://rwinch.github.io/spring-framework/";
+		String antoraStartUrl = "file:/home/rwinch/code/spring-projects/spring-framework/antora/framework-docs/build/site/framework/index.html";
 		WebCrawler webCrawler = new WebCrawler();
 		webCrawler.crawl(antoraStartUrl, page -> {
 			String url = page.getUrl().toString();
