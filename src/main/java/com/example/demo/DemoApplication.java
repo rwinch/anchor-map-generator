@@ -7,7 +7,6 @@ import com.google.gson.Gson;
 
 import java.net.URI;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class DemoApplication {
@@ -32,28 +31,18 @@ public class DemoApplication {
 			}
 		});
 		Map<String, String> asciidoctorIdToUrl = new HashMap<>();
-		Map<String, String> asciidoctorIdToTrimmedId = new HashMap<>();
 		IdParser asciidoctorIdParser = IdParser.createForAsciidoctor();
 		String asciidoctorStartUrl = "https://docs.spring.io/spring-framework/docs/current/reference/html/";
 		webCrawler.crawl(asciidoctorStartUrl, page -> {
 			String url = page.getUrl().toString();
-			List<String> ids = asciidoctorIdParser.ids(page);
-			String h1Id = ids.isEmpty() ? "" : ids.get(0);
-			IdTrimmer trimmer = new IdTrimmer(h1Id);
-			for (String id : ids) {
-				String trimmedId = trimmer.trim(id);
+			for (String id : asciidoctorIdParser.ids(page)) {
 				asciidoctorIdToUrl.put(id, url);
-				asciidoctorIdToTrimmedId.put(id, trimmedId);
 			}
 		});
 		for (String asciidoctorId : asciidoctorIdToUrl.keySet()) {
 			if (!antoraIdToUrl.containsKey(asciidoctorId)) {
 				if (antoraOriginalIdToUrl.containsKey(asciidoctorId)) {
-					String trimmedId = asciidoctorIdToTrimmedId.get(asciidoctorId);
-					if (!(antoraOriginalIdToUrl.containsKey(trimmedId) || antoraIdToUrl.containsKey(trimmedId))) {
-
-						System.out.println("Couldn't find mapping for " + asciidoctorId);
-					}
+					System.out.println("Couldn't find mapping for " + asciidoctorId);
 				}
 			}
 		}
