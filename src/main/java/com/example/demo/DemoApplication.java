@@ -18,11 +18,8 @@ public class DemoApplication {
 		WebCrawler webCrawler = new WebCrawler();
 		webCrawler.crawl(antoraStartUrl, page -> {
 			String url = page.getUrl().toString();
-			int lastIndexOfPath = url.lastIndexOf('/');
-			String basePath = (lastIndexOfPath > antoraStartUrl.length()) ? url.substring(antoraStartUrl.length(), lastIndexOfPath) : "";
-			String baseId = basePath.replaceAll("/", ".") + ".";
 			for (String id : antoraIdParser.ids(page)) {
-				antoraIdToUrl.put(baseId + id, url +"#"+id);
+				antoraIdToUrl.put(id, url +"#"+id);
 			}
 		});
 		Map<String, String> asciidoctorIdToUrl = new HashMap<>();
