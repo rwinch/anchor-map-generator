@@ -13,13 +13,21 @@ public class DemoApplication {
 
 	public static void main(String[] args) throws Exception {
 		Map<String, String> antoraIdToUrl = new HashMap<>();
+		Map<String, String> antoraOriginalIdToUrl = new HashMap<>();
 		IdParser antoraIdParser = IdParser.createForAntora();
 		String antoraStartUrl = "https://rwinch.github.io/spring-framework/";
 		WebCrawler webCrawler = new WebCrawler();
 		webCrawler.crawl(antoraStartUrl, page -> {
 			String url = page.getUrl().toString();
+			int lastIndexOfPath = url.lastIndexOf('/');
+			String basePath = (lastIndexOfPath > antoraStartUrl.length()) ? url.substring(antoraStartUrl.length(), lastIndexOfPath) : "";
+			String baseId = basePath.replaceAll("/", ".") + ".";
 			for (String id : antoraIdParser.ids(page)) {
-				antoraIdToUrl.put(id, url +"#"+id);
+				String urlWithAnchor = url +"#"+id;
+				antoraIdToUrl.put(id, urlWithAnchor);
+				antoraOriginalIdToUrl.put(baseId + id, urlWithAnchor);
+				String h1Id = url.substring(lastIndexOfPath, url.length() - ".html".length()) + ".";
+				antoraOriginalIdToUrl.put(baseId + h1Id + id, urlWithAnchor);
 			}
 		});
 		Map<String, String> asciidoctorIdToUrl = new HashMap<>();
@@ -33,7 +41,9 @@ public class DemoApplication {
 		});
 		for (String asciidoctorId : asciidoctorIdToUrl.keySet()) {
 			if (!antoraIdToUrl.containsKey(asciidoctorId)) {
-				System.out.println("Couldn't find mapping for " + asciidoctorId);
+				if (antoraOriginalIdToUrl.containsKey(asciidoctorId)) {
+					System.out.println("Couldn't find mapping for " + asciidoctorId);
+				}
 			}
 		}
 		Gson gson = new Gson();
