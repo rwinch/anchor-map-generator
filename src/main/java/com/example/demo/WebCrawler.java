@@ -40,7 +40,9 @@ public class WebCrawler {
 					try {
 						String normlizedUrl = normalizedUrl(absoluteUrl(page.getUrl().toString(), href));
 						if (!visitedUrls.contains(normlizedUrl) && !urlsToVisit.contains(normlizedUrl) && normlizedUrl.startsWith(normalizedStartUrl) && !normlizedUrl.matches(".*?/\\d.*")) {
-							urlsToVisit.add(normlizedUrl);
+							if (!startUrl.endsWith(".html") || normlizedUrl.endsWith(".html")) {
+								urlsToVisit.add(normlizedUrl);
+							}
 						}
 					} catch (URISyntaxException e) {
 						continue;
