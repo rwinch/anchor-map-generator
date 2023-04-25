@@ -25,6 +25,7 @@ public class WebCrawler {
 		urlsToVisit.add(startUrl);
 		try (final WebClient webClient = new WebClient() ) {
 			webClient.getOptions().setJavaScriptEnabled(false);
+			webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
 			while (!urlsToVisit.isEmpty()) {
 				String urlToVisit = urlsToVisit.pop();
 				System.out.println("Visiting " + urlToVisit);
