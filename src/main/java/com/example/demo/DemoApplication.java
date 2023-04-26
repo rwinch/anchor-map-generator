@@ -2,10 +2,7 @@ package com.example.demo;
 
 import com.google.gson.Gson;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DemoApplication {
 
@@ -31,7 +28,7 @@ public class DemoApplication {
 				antoraOriginalIdToUrl.put(baseId + h1Id + id, urlWithAnchor);
 			}
 		});
-		Map<String, String> adocFilesIdToPath = IdToPathMain.getIdToPath();
+		List<IdToPathMain.IdentifiableDocument> adocFilesIdToPath = IdToPathMain.getIdentifiableDocuments();
 		for (String id : adocFilesIdToPath.keySet()) {
 			antoraOriginalIdToUrl.put(id, adocFilesIdToPath.get(id));
 		}
