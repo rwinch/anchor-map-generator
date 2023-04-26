@@ -18,17 +18,10 @@ public class DemoApplication {
 		BaseUrl baseAntoraStartUrl = new BaseUrl(antoraStartUrl);
 		webCrawler.crawl(antoraStartUrl, page -> {
 			String url = page.getUrl().toString();
-			int lastIndexOfPath = url.lastIndexOf('/');
 			String basePath = baseAntoraStartUrl.relative(url);
-			int indexOfFirstPathInBasePath = basePath.indexOf("/");
-			String truncatedBasePath = indexOfFirstPathInBasePath < 0 ? "" : basePath.substring(indexOfFirstPathInBasePath);
-			String baseId = truncatedBasePath.replaceAll("/", ".") + "." ;
 			for (String id : antoraIdParser.ids(page)) {
 				String urlWithAnchor = basePath +"#"+id;
 				antoraIdToUrl.put(id, urlWithAnchor);
-				antoraOriginalIdToUrl.put(baseId + id, urlWithAnchor);
-				String h1Id = url.substring(lastIndexOfPath, url.length() - ".html".length()) + ".";
-				antoraOriginalIdToUrl.put(baseId + h1Id + id, urlWithAnchor);
 			}
 		});
 		Map<String, String> adocFilesIdToPath = IdToPathMain.getIdToPath();
@@ -59,7 +52,7 @@ public class DemoApplication {
 		System.out.println("total " + notFoundIds.size());
 		Gson gson = new Gson();
 		String json = gson.toJson(result);
-		System.out.println(json);
+//		System.out.println(json);
 	}
 
 	static class BaseUrl {
