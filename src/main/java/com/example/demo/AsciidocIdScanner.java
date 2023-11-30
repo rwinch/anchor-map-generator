@@ -12,7 +12,7 @@ public class AsciidocIdScanner {
 
 
 	List<Id> findIds(List<String> lines) {
-		Pattern idPattern = Pattern.compile("^\\[\\[(.+)\\]\\]");
+		Pattern idPattern = Pattern.compile("^\\.?\\[\\[(.+)\\]\\]");
 		Pattern headerPattern = Pattern.compile("^=+ (.+)");
 		ListIterator<String> iLines = lines.listIterator();
 		List<Id> results = new ArrayList<>();
