@@ -11,6 +11,7 @@ public class WriteRedirectsApplication {
 
 	static final String HTML_SINGLE_URL = "https://docs.spring.io/spring-integration/docs/6.1.x-SNAPSHOT/reference/html/index-single.html";
 	static final String HTML_MULTI_URL = "https://docs.spring.io/spring-integration/docs/6.1.x-SNAPSHOT/reference/html/";
+	static final String ANTORA_HTML = "https://docs.spring.io/spring-integration/reference/";
 
 	public static void main(String[] args) throws Exception {
 		Map<String, String> antoraOriginalIdToUrl = new HashMap<>();
@@ -32,6 +33,7 @@ public class WriteRedirectsApplication {
 		IdParser asciidoctorIdParser = IdParser.createForAsciidoctor();
 		webCrawler.crawl(asciidoctorStartUrl, htmlSingle, page -> {
 			String url = page.getUrl().toString();
+			asciidoctorHtmlPageToIds.put(url, new ArrayList<>());
 			System.out.println("Crawling " + url);
 			for (String id : asciidoctorIdParser.ids(page)) {
 				List<String> ids = asciidoctorHtmlPageToIds.computeIfAbsent(url, k -> new ArrayList<>());
@@ -55,10 +57,13 @@ public class WriteRedirectsApplication {
 				}
 			}
 			String fileName = page.substring(page.lastIndexOf("/") + 1);
+			if (!fileName.endsWith(".html")) {
+				fileName = fileName + "index.html";
+			}
 			Path outputFilePath = outputPath.resolve(fileName);
 			Gson gson = new Gson();
 			String json = gson.toJson(result);
-			String html = template.replace("%JSON%", json);
+			String html = template.replace("%JSON%", json).replace("%BASE_URL%", ANTORA_HTML);
 			Files.writeString(outputFilePath, html);
 		}
 
