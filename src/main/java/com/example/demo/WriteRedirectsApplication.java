@@ -6,41 +6,33 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-public class DemoApplication {
+public class WriteRedirectsApplication {
+	static final String ANTORA_PATH = "/home/rwinch/code/spring-projects/spring-integration/main/src/reference/antora/modules/ROOT/pages";
+
+	static final String HTML_SINGLE_URL = "https://docs.spring.io/spring-integration/docs/6.1.x-SNAPSHOT/reference/html/index-single.html";
+	static final String HTML_MULTI_URL = "https://docs.spring.io/spring-integration/docs/6.1.x-SNAPSHOT/reference/html/";
 
 	public static void main(String[] args) throws Exception {
-		WebCrawler webCrawler = new WebCrawler();
 		Map<String, String> antoraOriginalIdToUrl = new HashMap<>();
-		Path adocPagesPath = Path.of("/home/rwinch/code/spring-projects/spring-graphql/antora/spring-graphql-docs/modules/ROOT/pages");
+		Path adocPagesPath = Path.of(ANTORA_PATH);
 		Map<String, String> adocFilesIdToPath = new HashMap<>();
-//		adocFilesIdToPath.put("beans-factory-ctor-arguments-index", "core/beans/dependencies/factory-collaborators.html#beans-factory-ctor-arguments-index");
-//		adocFilesIdToPath.put("beans-factory-ctor-arguments-name", "core/beans/dependencies/factory-collaborators.html#beans-factory-ctor-arguments-names");
-//		adocFilesIdToPath.put("beans-factory-ctor-arguments-type", "core/beans/dependencies/factory-collaborators.html#beans-factory-ctor-arguments-type");
-//		adocFilesIdToPath.put("beans-java-combining-xml-centric-component-scan", "core/beans/java/composing-configuration-classes.html#beans-java-combining-xml-centric-component-scan");
-//		adocFilesIdToPath.put("mvc.web-uribuilder", "web/webmvc/mvc-uri-building.html#uribuilder");
-//		adocFilesIdToPath.put("mvc.web-uri-encoding", "web/webmvc/mvc-uri-building.html#uri-encoding");
-//		adocFilesIdToPath.put("mvc.web-uricomponents", "web/webmvc/mvc-uri-building.html#uricomponents");
-//
-//		adocFilesIdToPath.put("webflux.web-uri-encoding", "web/webflux/uri-building.html#uri-encoding");
-//		adocFilesIdToPath.put("webflux.web-uribuilder", "web/webflux/uri-building.html#uribuilder");
-//		adocFilesIdToPath.put("webflux.web-uricomponents", "web/webflux/uri-building.html#uricomponents");
-//
-//		adocFilesIdToPath.put("webflux.websocket-intro", "web/webflux-websocket.html#introduction-to-websocket");
-//		adocFilesIdToPath.put("webflux.websocket-intro-architecture", "web/webflux-websocket.html#http-versus-websocket");
-//		adocFilesIdToPath.put("webflux.websocket-intro-when-to-use", "web/webflux-websocket.html#when-to-use-websockets");
-//
-//		adocFilesIdToPath.put("mvc.websocket-intro", "web/websocket.html#introduction-to-websocket");
-//		adocFilesIdToPath.put("mvc.websocket-intro-architecture", "web/websocket.html#http-versus-websocket");
-//		adocFilesIdToPath.put("mvc.websocket-intro-when-to-use", "web/websocket.html#when-to-use-websockets");
 		adocFilesIdToPath.putAll(IdToPathMain.getIdToPath(adocPagesPath));
 		for (String id : adocFilesIdToPath.keySet()) {
 			antoraOriginalIdToUrl.put(id, adocFilesIdToPath.get(id));
 		}
+
+		writeRedirectsFor(antoraOriginalIdToUrl, HTML_SINGLE_URL, true);
+		writeRedirectsFor(antoraOriginalIdToUrl, HTML_MULTI_URL, false);
+
+	}
+
+	private static void writeRedirectsFor(Map<String, String> antoraOriginalIdToUrl, String asciidoctorStartUrl, boolean htmlSingle) throws Exception {
+		WebCrawler webCrawler = new WebCrawler();
 		Map<String, List<String>> asciidoctorHtmlPageToIds = new HashMap<>();
 		IdParser asciidoctorIdParser = IdParser.createForAsciidoctor();
-		String asciidoctorStartUrl = "https://docs.spring.io/spring-graphql/docs/current-SNAPSHOT/reference/html/index.html";
-		webCrawler.crawl(asciidoctorStartUrl, page -> {
+		webCrawler.crawl(asciidoctorStartUrl, htmlSingle, page -> {
 			String url = page.getUrl().toString();
+			System.out.println("Crawling " + url);
 			for (String id : asciidoctorIdParser.ids(page)) {
 				List<String> ids = asciidoctorHtmlPageToIds.computeIfAbsent(url, k -> new ArrayList<>());
 				ids.add(id);
@@ -72,8 +64,6 @@ public class DemoApplication {
 
 		System.out.println("Couldn't find these ids " + notFoundIds);
 		System.out.println("total " + notFoundIds.size());
-
-//		System.out.println(json);
 	}
 
 	private static String getWithHierarchicalKey(Map<String, String> map, String hiearchicalKey) {

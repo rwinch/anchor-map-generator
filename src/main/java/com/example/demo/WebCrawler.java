@@ -17,9 +17,10 @@ import java.util.Stack;
 import java.util.function.Consumer;
 
 public class WebCrawler {
+	static final String VERSION_URL = ".*?/\\d.*";
 	private static String INDEX = "index.html";
 
-	public void crawl(String startUrl, Consumer<HtmlPage> action) throws Exception  {
+	public void crawl(String startUrl, boolean htmlSingle, Consumer<HtmlPage> action) throws Exception  {
 		Set<String> visitedUrls = new HashSet<>();
 		Stack<String> urlsToVisit = new Stack<>();
 		urlsToVisit.add(startUrl);
@@ -27,20 +28,20 @@ public class WebCrawler {
 		try (final WebClient webClient = new WebClient() ) {
 			webClient.getOptions().setJavaScriptEnabled(false);
 			webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
-			while (!urlsToVisit.isEmpty()) {
-				String urlToVisit = urlsToVisit.pop();
-				System.out.println("Visiting " + urlToVisit);
-				visitedUrls.add(urlToVisit);
-
-				final HtmlPage page = webClient.getPage(urlToVisit);
-				action.accept(page);
+			if (!htmlSingle) {
+				final HtmlPage page = webClient.getPage(startUrl);
 				List<HtmlAnchor> anchors = page.getAnchors();
 				for (HtmlAnchor anchor : anchors) {
 					String href = anchor.getHrefAttribute();
 					try {
 						String normlizedUrl = normalizedUrl(absoluteUrl(page.getUrl().toString(), href));
-						if (!visitedUrls.contains(normlizedUrl) && !urlsToVisit.contains(normlizedUrl) && normlizedUrl.startsWith(normalizedStartUrl) && !normlizedUrl.matches(".*?/\\d.*")) {
-							if (!startUrl.endsWith(".html") || normlizedUrl.endsWith(".html")) {
+						boolean notVisitedYet= !visitedUrls.contains(normlizedUrl);
+						boolean notScheduledToVisitYet = !urlsToVisit.contains(normlizedUrl);
+						boolean childUrlOfNormalizedUrl = normlizedUrl.startsWith(normalizedStartUrl);
+						boolean startUrlIsVersioned = startUrl.matches(VERSION_URL);
+						boolean notVersionedDocs = !normlizedUrl.matches(VERSION_URL);
+						if (notVisitedYet && notScheduledToVisitYet && childUrlOfNormalizedUrl && (startUrlIsVersioned || notVersionedDocs)) {
+							if (normlizedUrl.endsWith(".html")) {
 								urlsToVisit.add(normlizedUrl);
 							}
 						}
@@ -48,6 +49,13 @@ public class WebCrawler {
 						continue;
 					}
 				}
+			}
+			while (!urlsToVisit.isEmpty()) {
+				String urlToVisit = urlsToVisit.pop();
+				visitedUrls.add(urlToVisit);
+
+				final HtmlPage page = webClient.getPage(urlToVisit);
+				action.accept(page);
 			}
 		}
 	}
